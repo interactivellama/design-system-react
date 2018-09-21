@@ -24,6 +24,7 @@ const argv = minimist(process.argv.slice(2));
 const rootPath = path.resolve(__dirname, '../');
 const remote = argv.remote || 'upstream';
 const isBuildServer = argv.buildserver || false;
+const targetBranch = argv.targetBranch || 'master';
 
 let currentVersionReleaseNotes = '';
 
@@ -35,9 +36,8 @@ const tasks = ({ release, done }) => {
 		},
 		{
 			ignoreCommand: isBuildServer,
-			message:
-				'# Checking out master branch. Please ignore "RELEASENOTES.md - Your branch and \'upstream/master\' have diverged."',
-			command: 'git checkout master',
+			message: `# Checking out ${targetBranch} branch. Please ignore "RELEASENOTES.md - Your branch and \'upstream/master\' have diverged."`,
+			command: `git checkout ${targetBranch}`,
 		},
 		{
 			ignoreCommand: isBuildServer,
@@ -87,7 +87,7 @@ const tasks = ({ release, done }) => {
 		},
 		{
 			ignoreCommand: isBuildServer,
-			command: 'git pull upstream master',
+			command: `git pull upstream ${targetBranch}`,
 		},
 		{
 			ignoreCommand: isBuildServer,
@@ -104,21 +104,21 @@ const tasks = ({ release, done }) => {
 			verbose: false,
 		},
 		{
-			message: `# Pushing local master branch to ${remote} remote`,
-			command: `git push ${remote} master --no-verify`,
+			message: `# Pushing local ${targetBranch} branch to ${remote} remote`,
+			command: `git push ${remote} ${targetBranch} --no-verify`,
 		},
-		{
-			message: '# Set up NPM configuration',
-			command: 'cp scripts/.npmrc .npmrc',
-		},
-		{
-			message: '# Publish to NPM',
-			command: 'npm publish .tmp-npm --access public',
-		},
-		{
-			message: '# Remove NPM configuration',
-			command: 'rm .npmrc',
-		},
+		// {
+		// 	message: '# Set up NPM configuration',
+		// 	command: 'cp scripts/.npmrc .npmrc',
+		// },
+		// {
+		// 	message: '# Publish to NPM',
+		// 	command: 'npm publish .tmp-npm --access public',
+		// },
+		// {
+		// 	message: '# Remove NPM configuration',
+		// 	command: 'rm .npmrc',
+		// },
 	]
 		.filter((item) => !item.ignoreCommand)
 		.map((item) => ({ ...item, rootPath }));
