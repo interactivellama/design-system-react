@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* Copyright (c) 2015-present, salesforce.com, inc. All rights reserved */
 /* Licensed under BSD 3-Clause - see LICENSE.txt or git.io/sfdc-license */
 
@@ -9,7 +10,7 @@
 
 // ### React
 import React from 'react';
-import createReactClass from 'create-react-class';
+
 import PropTypes from 'prop-types';
 
 // ### classNames
@@ -23,6 +24,8 @@ import classNames from 'classnames';
 // shortid is a short, non-sequential, url-friendly, unique id generator
 import shortid from 'shortid';
 
+import Button from '../button';
+
 // ## Children
 import InputIcon from '../icon/input-icon';
 import InnerInput from './private/inner-input';
@@ -31,15 +34,29 @@ import Label from '../utilities/label';
 // This component's `checkProps` which issues warnings to developers about properties when in development mode (similar to React's built in development tools)
 import checkProps from './check-props';
 
-import { FORMS_INPUT } from '../../utilities/constants';
+import { INPUT } from '../../utilities/constants';
+import componentDoc from './docs.json';
+import FieldLevelHelpTooltip from '../tooltip/private/field-level-help-tooltip';
+
+const COUNTER = 'counter';
+const DECREMENT = 'Decrement';
+const INCREMENT = 'Increment';
+
+const defaultProps = {
+	assistiveText: {
+		decrement: `${DECREMENT} ${COUNTER}`,
+		increment: `${INCREMENT} ${COUNTER}`,
+	},
+	type: 'text',
+};
 
 /**
  * The HTML `input` with a label and error messaging.
  */
-const Input = createReactClass({
-	displayName: FORMS_INPUT,
+class Input extends React.Component {
+	static displayName = INPUT;
 
-	propTypes: {
+	static propTypes = {
 		/**
 		 * The aria-activedescendant attribute contains the ID of the currently active child object that is part of a composite widget within the Document Object Model. It makes do with the overhead of having all or more than one child focusable. As the name specifies, it helps in managing the current active child of the composite widget.
 		 */
@@ -111,7 +128,7 @@ const Input = createReactClass({
 		 * "Controlled components" with centralized state is highly recommended.
 		 * See [Code Overview](https://github.com/salesforce/design-system-react/blob/master/docs/codebase-overview.md#controlled-and-uncontrolled-components) for more information.
 		 */
-		defaultValue: PropTypes.string,
+		defaultValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 		/**
 		 * Disables the input and prevents editing the contents.
 		 */
@@ -120,6 +137,10 @@ const Input = createReactClass({
 		 * Message to display when the input is in an error state. When this is present, also visually highlights the component as in error.
 		 */
 		errorText: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
+		/**
+		 * A [Tooltip](https://react.lightningdesignsystem.com/components/tooltips/) component that is displayed next to the label.
+		 */
+		fieldLevelHelpTooltip: PropTypes.node,
 		/**
 		 * Displays text or node to the left of the input. This follows the fixed text input UX pattern.
 		 */
@@ -145,6 +166,10 @@ const Input = createReactClass({
 		 */
 		id: PropTypes.string,
 		/**
+		 * Displays help text under the input.
+		 */
+		inlineHelpText: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
+		/**
 		 * This callback exposes the input reference / DOM node to parent components. `<Parent inputRef={(inputComponent) => this.input = inputComponent} />
 		 */
 		inputRef: PropTypes.func,
@@ -161,7 +186,7 @@ const Input = createReactClass({
 		 */
 		onBlur: PropTypes.func,
 		/**
-		 * This callback fires when the input changes. The synthetic React event will be the first parameter to the callback. You will probably want to reference `event.target.value` in your callback. No custom data object is provided.
+		 * This callback fires when the input changes. Passes in `event, { value }`.
 		 */
 		onChange: PropTypes.func,
 		/**
@@ -209,9 +234,17 @@ const Input = createReactClass({
 		 */
 		minLength: PropTypes.string,
 		/**
+		 * Specifies minimum accepted value for a counter input
+		 */
+		minValue: PropTypes.number,
+		/**
 		 * Sets the maximum number of characters that an `<input>` can accept.
 		 */
 		maxLength: PropTypes.string,
+		/**
+		 * Specifies maximum accepted value for a counter input
+		 */
+		maxValue: PropTypes.number,
 		/**
 		 * Name of the submitted form parameter.
 		 */
@@ -228,6 +261,18 @@ const Input = createReactClass({
 		 * ARIA role
 		 */
 		role: PropTypes.string,
+		/**
+		 * Determines the step size upon increment or decrement. Can be set to decimal values.
+		 */
+		step: PropTypes.number,
+		/**
+		 * styles to be added to input
+		 */
+		styleInput: PropTypes.object,
+		/**
+		 * Custom styles to be passed to the component container
+		 */
+		styleContainer: PropTypes.object,
 		/**
 		 * The `<Input>` element includes support for all HTML5 types.
 		 */
@@ -250,35 +295,98 @@ const Input = createReactClass({
 		/**
 		 * The input is a controlled component, and will always display this value.
 		 */
-		value: PropTypes.string,
-	},
+		value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+		/**
+		 * Which UX pattern of input? The default is `base` while other option is `counter`
+		 */
+		variant: PropTypes.oneOf(['base', COUNTER]),
+	};
 
-	getDefaultProps () {
-		return {
-			type: 'text',
+	static defaultProps = defaultProps;
+
+	constructor(props) {
+		super(props);
+		this.inputRef = null;
+		this.stepping = {
+			currentDelay: 500,
+			initialDelay: 500,
+			speedDelay: 75,
+			timeout: {},
 		};
-	},
+	}
 
-	componentWillMount () {
+	componentWillMount() {
 		// `checkProps` issues warnings to developers about properties (similar to React's built in development tools)
-		checkProps(FORMS_INPUT, this.props);
+		checkProps(INPUT, this.props, componentDoc);
 
 		this.generatedId = shortid.generate();
 		if (this.props.errorText) {
 			this.generatedErrorId = shortid.generate();
 		}
-	},
+	}
 
-	getId () {
-		return this.props.id || this.generatedId;
-	},
+	getId = () => this.props.id || this.generatedId;
 
-	getErrorId () {
-		return this.props['aria-describedby'] || this.generatedErrorId;
-	},
+	getErrorId = () => this.props['aria-describedby'] || this.generatedErrorId;
 
-	// This is convuluted to maintain backwards compatibility. Please remove deprecatedProps on next breaking change.
-	getIconRender (position, iconPositionProp) {
+	getValueAsNumber = () => {
+		let value = 0;
+
+		if (this.props.value !== undefined) {
+			value = Number(this.props.value);
+		} else if (this.inputRef) {
+			value = Number(this.inputRef.value);
+		}
+
+		return value;
+	};
+
+	getCounterButtonIcon = (direction) => {
+		const value = this.getValueAsNumber();
+		let disabled = false;
+
+		if (
+			this.props.disabled ||
+			(direction === INCREMENT &&
+				this.props.maxValue !== undefined &&
+				value >= this.props.maxValue) ||
+			(direction === DECREMENT &&
+				this.props.minValue !== undefined &&
+				value <= this.props.minValue)
+		) {
+			disabled = true;
+		}
+
+		return (
+			<Button
+				assistiveText={{
+					icon: this.props.assistiveText[direction.toLowerCase()],
+				}}
+				className={classNames(
+					'slds-button_icon-small',
+					`slds-input__button_${direction.toLowerCase()}`
+				)}
+				disabled={disabled}
+				iconCategory="utility"
+				iconName={direction === DECREMENT ? 'ban' : 'new'}
+				onKeyDown={(event) => {
+					if (event.keyCode === 13) {
+						this.performStep(direction, event);
+					}
+				}}
+				onKeyUp={this.stopStepping}
+				onMouseDown={(event) => {
+					this.performStep(direction, event);
+				}}
+				onMouseLeave={this.stopStepping}
+				onMouseUp={this.stopStepping}
+				variant="icon"
+			/>
+		);
+	};
+
+	// This is convoluted to maintain backwards compatibility. Please remove deprecatedProps on next breaking change.
+	getIconRender = (position, iconPositionProp) => {
 		let icon;
 
 		// Remove at next breaking change
@@ -318,19 +426,155 @@ const Input = createReactClass({
 		}
 
 		return icon;
-	},
+	};
 
-	render () {
+	setInputRef = (ref) => {
+		this.inputRef = ref;
+		if (this.props.inputRef) {
+			this.props.inputRef(ref);
+		}
+	};
+
+	handleChange = (event) => {
+		if (this.props.onChange) {
+			const data = {
+				value: event.target.value,
+			};
+
+			if (this.props.variant === COUNTER) {
+				data.number = Number(data.value);
+			}
+
+			this.props.onChange(event, data);
+		}
+	};
+
+	performStep = (direction, event) => {
+		clearTimeout(this.stepping.timeout);
+
+		const maxValue = this.props.maxValue;
+		const minValue = this.props.minValue;
+		const step = this.props.step !== undefined ? Number(this.props.step) : 1;
+		let value = this.getValueAsNumber();
+		let valueChanged = false;
+
+		if (direction === DECREMENT && maxValue !== undefined && value > maxValue) {
+			value = Number(maxValue);
+			valueChanged = true;
+		} else if (
+			direction === INCREMENT &&
+			minValue !== undefined &&
+			value < minValue
+		) {
+			value = Number(minValue);
+			valueChanged = true;
+		} else {
+			const decimalPlaces =
+				String(step).search(/\./) >= 0 ? String(step).split('.')[1].length : 0;
+			let minOverflow = 0;
+
+			if (minValue !== undefined) {
+				minOverflow = (value - minValue) % step;
+			}
+
+			if (minOverflow > 0) {
+				// Default browser inputs of type number with a min attribute alter the value upon change as needed so
+				// that with enough decrements it can reach the exact min value. This behavior is reflected here
+				value =
+					direction === DECREMENT
+						? value - minOverflow
+						: value + (step - minOverflow);
+			} else {
+				value = direction === DECREMENT ? value - step : value + step;
+			}
+
+			value = Number(value.toFixed(decimalPlaces));
+
+			if (
+				!(maxValue !== undefined && value > maxValue) &&
+				!(minValue !== undefined && value < minValue)
+			) {
+				valueChanged = true;
+			}
+		}
+
+		if (valueChanged) {
+			/*
+			* Use of `this.forceUpdate` is an anti-pattern. This code only executes if this `input` element is uncontrolled which this library believes is an anti-pattern, also. This code is only present to allow for the edge case of uncontrolled use of an `input`.
+			*/
+			if (this.props.value === undefined && this.inputRef) {
+				this.inputRef.value = String(value);
+				this.forceUpdate();
+			} else if (this.props.onChange) {
+				this.props.onChange(event, {
+					number: value,
+					value: String(value),
+				});
+			}
+		}
+
+		if (
+			(direction === INCREMENT &&
+				maxValue !== undefined &&
+				value >= maxValue) ||
+			(direction === DECREMENT && minValue !== undefined && value <= minValue)
+		) {
+			this.stopStepping();
+		} else {
+			this.stepping.timeout = setTimeout(() => {
+				this.stepping.currentDelay = this.stepping.speedDelay;
+				this.performStep(direction);
+			}, this.stepping.currentDelay);
+		}
+	};
+
+	stopStepping = () => {
+		clearTimeout(this.stepping.timeout);
+		this.stepping.currentDelay = this.stepping.initialDelay;
+	};
+
+	render() {
+		const assistiveText = {
+			...defaultProps.assistiveText,
+			...this.props.assistiveText,
+		};
+		const inputRef =
+			this.props.variant === COUNTER ? this.setInputRef : this.props.inputRef;
+		let iconLeft = null;
+		let iconRight = null;
+
+		const hasRenderedLabel =
+			this.props.label || (assistiveText && assistiveText.label);
+
 		// Remove at next breaking change
 		// this is a hack to make left the default prop unless overwritten by `iconPosition="right"`
-		const hasLeftIcon =
+		if (
 			!!this.props.iconLeft ||
 			((this.props.iconPosition === 'left' ||
 				this.props.iconPosition === undefined) &&
-				!!this.props.iconName);
-		const hasRightIcon =
+				!!this.props.iconName)
+		) {
+			iconLeft = this.getIconRender('left', 'iconLeft');
+		} else if (
+			this.props.variant === COUNTER &&
+			!this.props.isStatic &&
+			!this.props.readOnly
+		) {
+			iconLeft = this.getCounterButtonIcon(DECREMENT);
+		}
+
+		if (
 			!!this.props.iconRight ||
-			(this.props.iconPosition === 'right' && !!this.props.iconName);
+			(this.props.iconPosition === 'right' && !!this.props.iconName)
+		) {
+			iconRight = this.getIconRender('right', 'iconRight');
+		} else if (
+			this.props.variant === COUNTER &&
+			!this.props.isStatic &&
+			!this.props.readOnly
+		) {
+			iconRight = this.getCounterButtonIcon(INCREMENT);
+		}
 
 		return (
 			<div
@@ -341,14 +585,23 @@ const Input = createReactClass({
 					},
 					this.props.className
 				)}
+				style={this.props.styleContainer}
 			>
 				<Label
-					assistiveText={this.props.assistiveText}
+					assistiveText={assistiveText}
 					htmlFor={this.props.isStatic ? undefined : this.getId()}
 					label={this.props.label}
 					required={this.props.required}
 					variant={this.props.isStatic ? 'static' : 'base'}
 				/>
+				{this.props.fieldLevelHelpTooltip && hasRenderedLabel ? (
+					<FieldLevelHelpTooltip
+						assistiveText={{
+							triggerLearnMoreIcon: assistiveText.fieldLevelHelpButton,
+						}}
+						fieldLevelHelpTooltip={this.props.fieldLevelHelpTooltip}
+					/>
+				) : null}
 				<InnerInput
 					aria-activedescendant={this.props['aria-activedescendant']}
 					aria-autocomplete={this.props['aria-autocomplete']}
@@ -358,6 +611,11 @@ const Input = createReactClass({
 					aria-expanded={this.props['aria-expanded']}
 					aria-owns={this.props['aria-owns']}
 					aria-required={this.props['aria-required']}
+					className={classNames({
+						'slds-input_counter': this.props.variant === COUNTER,
+						'slds-p-horizontal_none':
+							this.props.variant === COUNTER && this.props.readOnly,
+					})}
 					containerProps={{
 						className: 'slds-form-element__control',
 					}}
@@ -367,17 +625,18 @@ const Input = createReactClass({
 					fixedTextRight={this.props.fixedTextRight}
 					hasSpinner={this.props.hasSpinner}
 					id={this.getId()}
-					iconLeft={hasLeftIcon ? this.getIconRender('left', 'iconLeft') : null}
-					iconRight={
-						hasRightIcon ? this.getIconRender('right', 'iconRight') : null
-					}
+					iconLeft={iconLeft}
+					iconRight={iconRight}
 					inlineEditTrigger={this.props.inlineEditTrigger}
+					inlineHelpText={this.props.inlineHelpText}
 					isStatic={this.props.isStatic}
 					minLength={this.props.minLength}
+					minValue={this.props.minValue}
 					maxLength={this.props.maxLength}
+					maxValue={this.props.maxValue}
 					name={this.props.name}
 					onBlur={this.props.onBlur}
-					onChange={this.props.onChange}
+					onChange={this.handleChange}
 					onClick={this.props.onClick}
 					onFocus={this.props.onFocus}
 					onInput={this.props.onInput}
@@ -388,13 +647,16 @@ const Input = createReactClass({
 					onSelect={this.props.onSelect}
 					onSubmit={this.props.onSubmit}
 					placeholder={this.props.placeholder}
-					inputRef={this.props.inputRef}
+					inputRef={inputRef}
 					readOnly={this.props.readOnly}
 					required={this.props.required}
 					role={this.props.role}
 					assistiveText={this.props.assistiveText}
-					type={this.props.type}
+					type={this.props.variant === COUNTER ? 'number' : this.props.type}
 					value={this.props.value}
+					variant={this.props.variant}
+					step={this.props.step}
+					style={this.props.styleInput}
 				/>
 				{this.props.errorText && (
 					<div id={this.getErrorId()} className="slds-form-element__help">
@@ -404,7 +666,7 @@ const Input = createReactClass({
 				{this.props.children}
 			</div>
 		);
-	},
-});
+	}
+}
 
 export default Input;

@@ -6,6 +6,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import checkProps from './check-props';
+import componentDoc from './docs.json';
 
 // ### classNames
 // [github.com/JedWatson/classnames](https://github.com/JedWatson/classnames)
@@ -28,7 +29,7 @@ const defaultProps = {
  * The Icon component is the Lightning Design System Icon component and should be used for naked icons. For icons that are buttons, use the <a href='/components/buttons/'>Button component</a> component with <code>variant='icon'</code>.
  */
 const Icon = (props) => {
-	checkProps(ICON, props);
+	checkProps(ICON, props, componentDoc);
 	const {
 		category,
 		className,
@@ -46,9 +47,9 @@ const Icon = (props) => {
 		typeof props.assistiveText === 'string'
 			? props.assistiveText
 			: {
-				...defaultProps.assistiveText,
-				...props.assistiveText,
-			}.label;
+					...defaultProps.assistiveText,
+					...props.assistiveText,
+				}.label;
 
 	const kababCaseName = name ? name.replace(/_/g, '-') : '';
 
@@ -57,7 +58,7 @@ const Icon = (props) => {
 			className={classNames(
 				{
 					'slds-icon_container': category !== 'utility',
-					'slds-icon_container--circle': category === 'action',
+					'slds-icon_container_circle': category === 'action',
 					[`slds-icon-${category}-${kababCaseName}`]:
 						category !== 'utility' && category !== 'doctype' && !path,
 				},
@@ -69,11 +70,11 @@ const Icon = (props) => {
 				aria-hidden="true"
 				category={category}
 				className={classNames(className, 'slds-icon', {
-					'slds-icon--xx-small': size === 'xx-small',
-					'slds-icon--x-small': size === 'x-small',
-					'slds-icon--small': size === 'small',
+					'slds-icon_xx-small': size === 'xx-small',
+					'slds-icon_x-small': size === 'x-small',
+					'slds-icon_small': size === 'small',
 					// medium intentially not present
-					'slds-icon--large': size === 'large',
+					'slds-icon_large': size === 'large',
 					// if category is `utility` and `inverse` is false (default), icon will be dark // return true
 					// if category is `utility` and `inverse` is true, icon will be light // return false
 					// if category is NOT `utility` and `inverse` is false (default), icon will be light // return false

@@ -1,5 +1,5 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
+
 import IconSettings from '~/components/icon-settings';
 import GlobalHeader from '~/components/global-header'; // `~` is replaced with design-system-react at runtime
 import GlobalHeaderButton from '~/components/global-header/button';
@@ -7,10 +7,10 @@ import GlobalHeaderDropdown from '~/components/global-header/dropdown';
 import GlobalHeaderProfile from '~/components/global-header/profile';
 import GlobalHeaderSearch from '~/components/global-header/search';
 
-const Example = createReactClass({
-	displayName: 'GlobalHeaderExample',
+class Example extends React.Component {
+	static displayName = 'GlobalHeaderExample';
 
-	render () {
+	render() {
 		return (
 			<IconSettings iconPath="/assets/icons">
 				<GlobalHeader
@@ -30,7 +30,7 @@ const Example = createReactClass({
 						options={[{ label: 'Email' }, { label: 'Mobile' }]}
 					/>
 					<GlobalHeaderButton
-						className="slds-m-right--small"
+						className="slds-m-right_small"
 						iconVariant={null}
 						label="Feedback"
 						onClick={() => {
@@ -39,7 +39,8 @@ const Example = createReactClass({
 						variant="neutral"
 					/>
 					<GlobalHeaderDropdown
-						assistiveText="Global Actions"
+						assistiveText={{ icon: 'Global Actions' }}
+						id="global-header-dropdown-example"
 						iconCategory="utility"
 						iconName="add"
 						onSelect={() => {
@@ -49,6 +50,7 @@ const Example = createReactClass({
 					/>
 					<GlobalHeaderButton
 						assistiveText={{ icon: 'Help and Training' }}
+						iconCategory="utility"
 						iconName="question"
 						onClick={() => {
 							console.log('>>> onClick');
@@ -56,6 +58,7 @@ const Example = createReactClass({
 					/>
 					<GlobalHeaderButton
 						assistiveText={{ icon: 'Setup' }}
+						iconCategory="utility"
 						iconName="settings"
 						onClick={() => {
 							console.log('>>> onClick');
@@ -63,6 +66,7 @@ const Example = createReactClass({
 					/>
 					<GlobalHeaderProfile
 						avatar="/images/avatar2.jpg"
+						id="global-header-profile-example"
 						onClick={() => {
 							console.log('>>> onClick');
 						}}
@@ -74,7 +78,7 @@ const Example = createReactClass({
 				</GlobalHeader>
 			</IconSettings>
 		);
-	},
-});
+	}
+}
 
 export default Example; // export is replaced with `ReactDOM.render(<Example />, mountNode);` at runtime

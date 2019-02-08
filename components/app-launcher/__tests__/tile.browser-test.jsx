@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import chai from 'chai';
 import assign from 'lodash.assign';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import IconSettings from '../../icon-settings';
 
 import AppLauncherTile from '../../app-launcher/tile';
@@ -32,7 +32,7 @@ describe('SLDS APP LAUNCHER TILE *******************************************', (
 	const createTile = (props) =>
 		React.createElement(AppLauncherTile, assign({}, defaultTileProps, props));
 
-	function mountTile (props) {
+	function mountTile(props) {
 		// This div is needed for Truncate to properly determine the description width
 		div = document.createElement('div');
 		div.style.cssText = 'width: 300px';
@@ -54,7 +54,7 @@ describe('SLDS APP LAUNCHER TILE *******************************************', (
 			.childAt(0);
 	}
 
-	function cleanDom () {
+	function cleanDom() {
 		document.body.removeChild(div);
 	}
 
@@ -83,7 +83,7 @@ describe('SLDS APP LAUNCHER TILE *******************************************', (
 
 		it('renders tile with proper classes', () => {
 			should.exist(
-				handles.tile.find('.slds-app-launcher__tile .slds-text-link--reset')
+				handles.tile.find('.slds-app-launcher__tile .slds-text-link_reset')
 			);
 		});
 
@@ -100,7 +100,7 @@ describe('SLDS APP LAUNCHER TILE *******************************************', (
 		});
 
 		it('renders description heading', () => {
-			expect(handles.tile.find('.slds-text-heading--label').text()).to.equal(
+			expect(handles.tile.find('.slds-text-heading_label').text()).to.equal(
 				'Sub Heading '
 			);
 		});
@@ -116,13 +116,14 @@ describe('SLDS APP LAUNCHER TILE *******************************************', (
 		});
 
 		it('has an href attribute', () => {
-			expect(handles.tile.find('a').node.href).to.equal(
+			expect(handles.tile.find('a')).to.have.attr(
+				'href',
 				'https://www.marketingcloud.com/'
 			);
 		});
 
 		it('clicking tile fires callback', () => {
-			Simulate.click(handles.tile.find('a').node);
+			handles.tile.find('a').simulate('click');
 			expect(onClick.calledOnce).to.be.true; // eslint-disable-line no-unused-expressions
 		});
 
@@ -132,7 +133,7 @@ describe('SLDS APP LAUNCHER TILE *******************************************', (
 
 		it('tile can be passed a search string', () => {
 			const searchStr = handles.tile;
-			const childrenProps = searchStr.component.props.props.children.props;
+			const childrenProps = searchStr.props().children.props;
 			expect(childrenProps.search).to.equal('upport');
 		});
 
@@ -171,8 +172,11 @@ describe('SLDS APP LAUNCHER TILE *******************************************', (
 			});
 		});
 
-		afterEach(() => {
-			cleanDom();
+		afterEach((done) => {
+			setTimeout(function() {
+				cleanDom();
+				done();
+			}, 100);
 		});
 
 		it('renders more link', () => {
@@ -185,27 +189,27 @@ describe('SLDS APP LAUNCHER TILE *******************************************', (
 			// const clonedNodeWithoutSpan = clonedNode.firstChild.remove();
 			// console.log(clonedNode);
 
-			expect(handles.more.node.textContent).to.equal(`${moreLabel}`);
+			expect(handles.more.text()).to.equal(`${moreLabel}`);
 		});
 
 		it('long descriptions use Tooltip activated by hover', () => {
 			// this test causes the tooltip to 'flash' on the testing page http://localhost:8001/
-			Simulate.mouseEnter(handles.more.node, {});
+			handles.more.simulate('mouseenter');
 			// uses portal mount
-			should.exist(document.querySelector('.slds-popover--tooltip'));
-			Simulate.mouseLeave(handles.more.node, {});
+			should.exist(document.querySelector('.slds-popover_tooltip'));
+			handles.more.simulate('mouseleave');
 		});
 
 		it('search string highlights tooltip content', () => {
 			// this is a hack that waits for the tooltip to render through PopperJS
-			setTimeout(function () {
+			setTimeout(function() {
 				expect(
-					handles.more
-						.find('mark')
+					handles.tile
+						.find('.slds-popover__body mark')
 						.at(0)
 						.text()
 				).to.equal('enter');
-			}, 500);
+			}, 100);
 		});
 	});
 
@@ -223,9 +227,11 @@ describe('SLDS APP LAUNCHER TILE *******************************************', (
 		});
 
 		it('renders text icon with proper classes', () => {
-			expect(handles.icon.find('span').node.className).to.include(
-				'slds-avatar slds-avatar--large slds-align--absolute-center slds-icon-custom-27'
-			);
+			const icon = handles.icon.find('span');
+			expect(icon).to.have.className('slds-avatar');
+			expect(icon).to.have.className('slds-avatar_large');
+			expect(icon).to.have.className('slds-align_absolute-center');
+			expect(icon).to.have.className('slds-icon-custom-27');
 		});
 
 		it('tile can be passed a custom text icon', () => {
@@ -248,8 +254,8 @@ describe('SLDS APP LAUNCHER TILE *******************************************', (
 			cleanDom();
 		});
 
-		it('renders <Icon> node', () => {
-			expect(handles.icon.find('span').node.className).to.include(
+		it('renders <Icon>', () => {
+			expect(handles.icon.find('span')).to.have.className(
 				'slds-icon_container'
 			);
 		});
@@ -275,15 +281,15 @@ describe('SLDS APP LAUNCHER TILE *******************************************', (
 		});
 
 		it('renders small tile with proper classes', () => {
-			should.exist(handles.tile.find('.slds-app-launcher__tile--small'));
+			should.exist(handles.tile.find('.slds-app-launcher__tile_small'));
 		});
 
 		it('renders small icon with proper classes', () => {
-			should.exist(handles.tile.find('.slds-app-launcher__tile-figure--small'));
+			should.exist(handles.tile.find('.slds-app-launcher__tile-figure_small'));
 		});
 
 		it('small tile body has proper classes', () => {
-			should.exist(handles.body.find('.slds-app-launcher__tile-body--small'));
+			should.exist(handles.body.find('.slds-app-launcher__tile-body_small'));
 		});
 
 		it('small tile body has <p> tag with truncate class', () => {

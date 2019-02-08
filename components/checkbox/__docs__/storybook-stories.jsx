@@ -3,14 +3,18 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import IconSettings from '../../icon-settings';
 
-import { FORMS_CHECKBOX } from '../../../utilities/constants';
+import { CHECKBOX } from '../../../utilities/constants';
 import Checkbox from '../';
 import Button from '../../button';
 
 import DefaultCheckbox from '../__examples__/default';
+import Error from '../__examples__/error';
+import SnapshotBase from '../__examples__/snapshot-base';
+import SnapshotToggle from '../__examples__/snapshot-toggle';
+import Toggle from '../__examples__/toggle';
 
 class CheckboxIndeterminate extends React.Component {
-	static displayName = `${FORMS_CHECKBOX}_INDETERMINATE`;
+	static displayName = `${CHECKBOX}_INDETERMINATE`;
 
 	state = {
 		indeterminate: true,
@@ -64,7 +68,7 @@ class CheckboxIndeterminate extends React.Component {
 		action('changeToUnChecked')(event, 'checked: false, indeterminate: false');
 	};
 
-	render () {
+	render() {
 		return (
 			<div>
 				<Button onClick={this.changeToIndeterminate} label="Indeterminate" />
@@ -77,13 +81,14 @@ class CheckboxIndeterminate extends React.Component {
 					assistiveText={{
 						label: 'Checkbox (indeterminate)',
 					}}
+					id="checkbox-example-standard-indeterminate"
 					label="Checkbox Label"
 					name="checkbox-example-standard-indeterminate"
 					checked={this.state.checked}
 					indeterminate={this.state.indeterminate}
 					onChange={this.handleChange}
 				/>
-				<div className="slds-box slds-text-longform slds-m-top--large">
+				<div className="slds-box slds-text-longform slds-m-top_large">
 					<p>
 						This example has an <em>indeterminate</em> checkbox.
 					</p>
@@ -106,9 +111,9 @@ class CheckboxIndeterminate extends React.Component {
 	}
 }
 
-storiesOf(FORMS_CHECKBOX, module)
+storiesOf(CHECKBOX, module)
 	.addDecorator((getStory) => (
-		<div className="slds-p-around--medium">
+		<div className="slds-p-around_medium">
 			<IconSettings iconPath="/assets/icons">{getStory()}</IconSettings>
 		</div>
 	))
@@ -128,11 +133,12 @@ storiesOf(FORMS_CHECKBOX, module)
 							I must make my checkbox true.
 							I must make it truer than my radio button who is trying to... `,
 				}}
+				id="checkbox-example-base-assistiveText"
 				label="Checkbox Label"
 				name="checkbox-example-base-assistiveText"
 				onChange={action('change')}
 			/>
-			<div className="slds-box slds-text-longform slds-m-top--large">
+			<div className="slds-box slds-text-longform slds-m-top_large">
 				<p>
 					This example has assistive text. In Safari on Mac you can turn
 					assistive text on by using the keyboard combination:
@@ -150,6 +156,7 @@ storiesOf(FORMS_CHECKBOX, module)
 	.add('Checkbox (checked)', () => (
 		<Checkbox
 			checked
+			id="checkbox-example-base-checked"
 			label="Checkbox Label"
 			name="checkbox-example-base-checked"
 			onChange={action('change')}
@@ -158,6 +165,7 @@ storiesOf(FORMS_CHECKBOX, module)
 	.add('Checkbox (indeterminate)', () => <CheckboxIndeterminate />)
 	.add('Checkbox Toggle', () => (
 		<Checkbox
+			id="checkbox-example-toggle"
 			label="Checkbox Toggle Label"
 			name="checkbox-example-toggle"
 			onChange={action('change')}
@@ -169,6 +177,7 @@ storiesOf(FORMS_CHECKBOX, module)
 	))
 	.add('Checkbox Toggle (with error)', () => (
 		<Checkbox
+			id="checkbox-example-toggle-error"
 			label="Checkbox Toggle Label"
 			name="checkbox-example-toggle-error"
 			errorText="This field has an error."
@@ -181,6 +190,7 @@ storiesOf(FORMS_CHECKBOX, module)
 	))
 	.add('Checkbox Toggle (required)', () => (
 		<Checkbox
+			id="checkbox-example-toggle-required"
 			label="Checkbox Toggle Label"
 			name="checkbox-example-toggle-required"
 			onChange={action('change')}
@@ -193,6 +203,7 @@ storiesOf(FORMS_CHECKBOX, module)
 	))
 	.add('Checkbox Toggle (disabled)', () => (
 		<Checkbox
+			id="checkbox-example-toggle-disabled"
 			label="Checkbox Toggle Label"
 			name="checkbox-example-toggle-disabled"
 			onChange={action('change')}
@@ -216,12 +227,13 @@ storiesOf(FORMS_CHECKBOX, module)
 							I must make my checkbox true.
 							I must make it truer than my radio button who is trying to... `,
 				}}
+				id="checkbox-example-base-assistiveText"
 				label="Checkbox Label"
 				name="checkbox-example-base-assistiveText"
 				onChange={action('change')}
 				variant="toggle"
 			/>
-			<div className="slds-box slds-text-longform slds-m-top--large">
+			<div className="slds-box slds-text-longform slds-m-top_large">
 				<p>
 					This example has assistive text. In Safari on Mac you can turn
 					assistive text on by using the keyboard combination:
@@ -239,9 +251,14 @@ storiesOf(FORMS_CHECKBOX, module)
 	.add('Checkbox Toggle (checked)', () => (
 		<Checkbox
 			checked
+			id="checkbox-example-toggle-checked"
 			label="Checkbox Label"
 			name="checkbox-example-toggle-checked"
 			onChange={action('change')}
 			variant="toggle"
 		/>
-	));
+	))
+	.add('Doc site Error', () => <Error />)
+	.add('Doc site Snapshot Base', () => <SnapshotBase />)
+	.add('Doc site Snapshot Toggle', () => <SnapshotToggle />)
+	.add('Doc site Toggle', () => <Toggle />);

@@ -25,6 +25,7 @@ import Svg from '../utilities/utility-icon/svg';
 
 // ## Constants
 import { ILLUSTRATION } from '../../utilities/constants';
+import componentDoc from './docs.json';
 
 /**
  * An illustration is an image and inline text that work in tandem to communicate a state in a more friendly way.
@@ -40,12 +41,16 @@ const Illustration = ({
 	size,
 	style,
 }) => {
-	checkProps('Illustration', {
-		illustration,
-		internalIllustration,
-		heading,
-		path,
-	});
+	checkProps(
+		'Illustration',
+		{
+			illustration,
+			internalIllustration,
+			heading,
+			path,
+		},
+		componentDoc
+	);
 	const kababCaseName = name ? name.replace(/_| /g, '-').toLowerCase() : '';
 	let illustrationSvg;
 	if (illustration) {
@@ -114,7 +119,7 @@ Illustration.propTypes = {
 	 */
 	heading: PropTypes.string,
 	/**
-	 * A custom SVG object to use instead of the supplied SLDS illustrations, look in `design-system-react/assets/images/illustrations` for examples and syntax. _Tested with snapshot testing._ _Tested with Mocha testing._
+	 * A custom SVG object to use instead of the supplied SLDS illustrations, look in `design-system-react/icons` for examples and syntax. _Tested with snapshot testing._ _Tested with Mocha testing._
 	 */
 	illustration: PropTypes.object,
 	/**

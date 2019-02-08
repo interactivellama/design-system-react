@@ -27,7 +27,7 @@ chai.use(chaiEnzyme());
 
 const COMPONENT_CSS_CLASSES = {
 	base: 'slds-context-bar',
-	themePrefix: 'slds-context-bar--theme-',
+	themePrefix: 'slds-context-bar_theme-',
 };
 
 const REGION_CSS_CLASSES = {
@@ -57,18 +57,19 @@ describe('Global Navigation Bar: ', () => {
 
 		afterEach(unmountComponent);
 
-		it('has wrapping div and one primary region', function () {
-			const component = this.wrapper.find(`.${COMPONENT_CSS_CLASSES.base}`);
-			expect(component).to.have.length(1);
-
-			const primary = this.wrapper.find(`.${REGION_CSS_CLASSES.primary}`);
-			expect(primary).to.have.length(1);
+		it('has wrapping div and one primary region', function() {
+			expect(
+				this.wrapper.find(`.${COMPONENT_CSS_CLASSES.base}`)
+			).to.be.present();
+			expect(
+				this.wrapper.find(`.${REGION_CSS_CLASSES.primary}`)
+			).to.be.present();
 		});
 
-		it('Primary region DOES not have divider on right', function () {
+		it('Primary region DOES not have divider on right', function() {
 			const primary = this.wrapper.find(`.${REGION_CSS_CLASSES.primary}`);
-			expect(primary.nodes[0].className).to.not.include(
-				'slds-context-bar__item--divider-right'
+			expect(primary).to.not.have.className(
+				'slds-context-bar__item_divider-right'
 			);
 		});
 	});
@@ -87,18 +88,14 @@ describe('Global Navigation Bar: ', () => {
 
 		afterEach(unmountComponent);
 
-		it('has custom cloud and theme CSS', function () {
+		it('has custom cloud and theme CSS', function() {
 			const component = this.wrapper.find(`.${COMPONENT_CSS_CLASSES.base}`);
-			expect(
-				component.hasClass(
-					`${COMPONENT_CSS_CLASSES.themePrefix}${customCloudProps.cloud}`
-				)
-			).to.be.true;
-			expect(
-				component.hasClass(
-					`${COMPONENT_CSS_CLASSES.themePrefix}${customThemeProps.theme}`
-				)
-			).to.be.true;
+			expect(component).to.have.className(
+				`${COMPONENT_CSS_CLASSES.themePrefix}${customCloudProps.cloud}`
+			);
+			expect(component).to.have.className(
+				`${COMPONENT_CSS_CLASSES.themePrefix}${customThemeProps.theme}`
+			);
 		});
 	});
 
@@ -169,33 +166,31 @@ describe('Global Navigation Bar: ', () => {
 
 		afterEach(unmountComponent);
 
-		it('has 1 primary, 1 secondary, and 1 tertiary region', function () {
-			const primary = this.wrapper.find(`.${REGION_CSS_CLASSES.primary}`);
-			expect(primary).to.have.length(1);
-
-			const secondary = this.wrapper.find(`.${REGION_CSS_CLASSES.secondary}`);
-			expect(secondary).to.have.length(1);
-
-			const tertiary = this.wrapper.find(`.${REGION_CSS_CLASSES.tertiary}`);
-			expect(tertiary).to.have.length(1);
+		it('has 1 primary, 1 secondary, and 1 tertiary region', function() {
+			expect(
+				this.wrapper.find(`.${REGION_CSS_CLASSES.primary}`)
+			).to.be.present();
+			expect(
+				this.wrapper.find(`.${REGION_CSS_CLASSES.secondary}`)
+			).to.be.present();
+			expect(
+				this.wrapper.find(`.${REGION_CSS_CLASSES.tertiary}`)
+			).to.be.present();
 		});
 
-		it('Primary region has divider on right due to secondary region', function () {
-			const primary = this.wrapper.find(`.${REGION_CSS_CLASSES.primary}`);
-			expect(primary.nodes[0].className).to.include(
-				'slds-context-bar__item--divider-right'
-			);
+		it('Primary region has divider on right due to secondary region', function() {
+			expect(
+				this.wrapper.find(`.${REGION_CSS_CLASSES.primary}`)
+			).to.have.className('slds-context-bar__item_divider-right');
 		});
 
-		it('Secondary region application is a nav HTML element and has divider on right side', function () {
+		it('Secondary region application is a nav HTML element and has divider on right side', function() {
 			const nav = this.wrapper.find(`.${REGION_CSS_CLASSES.secondary}`);
 			expect(nav.type()).to.equal('nav');
-			expect(nav.node.className).to.include(
-				'slds-context-bar__item--divider-right'
-			);
+			expect(nav).to.have.className('slds-context-bar__item_divider-right');
 		});
 
-		it('displays active items as active', function () {
+		it('displays active items as active', function() {
 			const activeItems = this.wrapper.find('.slds-is-active');
 			expect(activeItems).to.have.length(3);
 		});
@@ -212,7 +207,7 @@ describe('Global Navigation Bar: ', () => {
 
 		afterEach(unmountComponent);
 
-		it('Secondary region application is div and not a nav', function () {
+		it('Secondary region application is div and not a nav', function() {
 			const nav = this.wrapper.find(`.${REGION_CSS_CLASSES.secondary}`);
 			expect(nav.type()).to.equal('div');
 		});
@@ -224,7 +219,7 @@ describe('Global Navigation Bar: ', () => {
 		let linkClicked;
 		let link;
 
-		beforeEach(function () {
+		beforeEach(function() {
 			linkClicked = sinon.spy();
 			const instance = (
 				<GlobalNavigationBarLink
@@ -237,14 +232,14 @@ describe('Global Navigation Bar: ', () => {
 			this.wrapper = mount(instance, {
 				attachTo: document.body.appendChild(document.createElement('div')),
 			});
-			link = this.wrapper.find('#home-link');
+			link = this.wrapper.find('li#home-link');
 		});
 
-		afterEach(function () {
+		afterEach(function() {
 			this.wrapper.unmount();
 		});
 
-		it('GlobalNavigationBarLink has attributes and onClick runs callback', function () {
+		it('GlobalNavigationBarLink has attributes and onClick runs callback', function() {
 			expect(link.text()).to.equal('Home');
 			link.simulate('click');
 			expect(linkClicked.calledOnce).to.be.true;
@@ -256,7 +251,7 @@ describe('Global Navigation Bar: ', () => {
 	});
 
 	describe('GlobalNavigationButton child component', () => {
-		it('GlobalNavigationBarButton has attributes and onClick runs callback', function () {
+		it('GlobalNavigationBarButton has attributes and onClick runs callback', function() {
 			const buttonClicked = sinon.spy();
 			const instance = (
 				<GlobalNavigationBarButton
@@ -268,7 +263,7 @@ describe('Global Navigation Bar: ', () => {
 			this.wrapper = mount(instance, {
 				attachTo: document.body.appendChild(document.createElement('div')),
 			});
-			const link = this.wrapper.find('#global-nav__button');
+			const link = this.wrapper.find('button#global-nav__button');
 			expect(link.text()).to.equal('Button');
 			link.simulate('click');
 			expect(buttonClicked.calledOnce).to.be.true;
@@ -278,12 +273,12 @@ describe('Global Navigation Bar: ', () => {
 	});
 
 	describe('GlobalNavigationLabel child component', () => {
-		it('GlobalNavigationBarLabel has attributes', function () {
+		it('GlobalNavigationBarLabel has attributes', function() {
 			const instance = <GlobalNavigationBarLabel label="Text" id="test-text" />;
 			this.wrapper = mount(instance, {
 				attachTo: document.body.appendChild(document.createElement('div')),
 			});
-			const item = this.wrapper.find('#test-text');
+			const item = this.wrapper.find('span#test-text');
 			expect(item.text()).to.equal('Text');
 
 			this.wrapper.unmount();

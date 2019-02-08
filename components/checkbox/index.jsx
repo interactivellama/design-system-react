@@ -21,8 +21,9 @@ import EventUtil from '../../utilities/event';
 
 // This component's `checkProps` which issues warnings to developers about properties when in development mode (similar to React's built in development tools)
 import checkProps from './check-props';
+import componentDoc from './docs.json';
 
-import { FORMS_CHECKBOX } from '../../utilities/constants';
+import { CHECKBOX } from '../../utilities/constants';
 
 const propTypes = {
 	/**
@@ -158,8 +159,8 @@ const defaultProps = {
  * The ability to style checkboxes with CSS varies across browsers. Using this component ensures checkboxes look the same everywhere.
  */
 class Checkbox extends React.Component {
-	componentWillMount () {
-		checkProps(FORMS_CHECKBOX, this.props);
+	componentWillMount() {
+		checkProps(CHECKBOX, this.props, componentDoc);
 		this.generatedId = shortid.generate();
 	}
 
@@ -195,7 +196,7 @@ class Checkbox extends React.Component {
 	};
 
 	renderButtonGroupVariant = (props, assistiveText, labels) => (
-		<span className="slds-button slds-checkbox--button">
+		<span className="slds-button slds-checkbox_button">
 			<input
 				aria-controls={this.props['aria-controls']}
 				aria-describedby={this.props['aria-describedby']}
@@ -219,8 +220,8 @@ class Checkbox extends React.Component {
 				required={props.required}
 				type="checkbox"
 			/>
-			<label className="slds-checkbox--button__label" htmlFor={this.getId()}>
-				<span className="slds-checkbox--faux">{labels.label}</span>
+			<label className="slds-checkbox_button__label" htmlFor={this.getId()}>
+				<span className="slds-checkbox_faux">{labels.label}</span>
 				{assistiveText.label ? (
 					<span className="slds-assistive-text">{assistiveText.label}</span>
 				) : null}
@@ -273,7 +274,7 @@ class Checkbox extends React.Component {
 						type="checkbox"
 					/>
 					<label className="slds-checkbox__label" htmlFor={this.getId()}>
-						<span className="slds-checkbox--faux" />
+						<span className="slds-checkbox_faux" />
 						{labels.label ? (
 							<span className="slds-form-element__label">{labels.label}</span>
 						) : null}
@@ -300,14 +301,14 @@ class Checkbox extends React.Component {
 				props.className
 			)}
 		>
-			<label className="slds-checkbox--toggle slds-grid" htmlFor={this.getId()}>
+			<label className="slds-checkbox_toggle slds-grid" htmlFor={this.getId()}>
 				{props.required ? (
 					<abbr className="slds-required" title="required">
 						*
 					</abbr>
 				) : null}
 				{labels.label ? (
-					<span className="slds-form-element__label slds-m-bottom--none">
+					<span className="slds-form-element__label slds-m-bottom_none">
 						{labels.label}
 					</span>
 				) : null}
@@ -339,12 +340,12 @@ class Checkbox extends React.Component {
 				/>
 				<span
 					id={`${this.getId()}-desc`}
-					className="slds-checkbox--faux_container"
+					className="slds-checkbox_faux_container"
 					aria-live="assertive"
 				>
-					<span className="slds-checkbox--faux" />
-					<span className="slds-checkbox--on">{labels.toggleEnabled}</span>
-					<span className="slds-checkbox--off">{labels.toggleDisabled}</span>
+					<span className="slds-checkbox_faux" />
+					<span className="slds-checkbox_on">{labels.toggleEnabled}</span>
+					<span className="slds-checkbox_off">{labels.toggleDisabled}</span>
 				</span>
 			</label>
 			{props.errorText ? (
@@ -353,7 +354,7 @@ class Checkbox extends React.Component {
 		</div>
 	);
 
-	render () {
+	render() {
 		const assistiveText = {
 			...defaultProps.assistiveText,
 			/* Remove backward compatibility at next breaking change */
@@ -384,7 +385,7 @@ class Checkbox extends React.Component {
 	}
 }
 
-Checkbox.displayName = FORMS_CHECKBOX;
+Checkbox.displayName = CHECKBOX;
 Checkbox.propTypes = propTypes;
 Checkbox.defaultProps = defaultProps;
 

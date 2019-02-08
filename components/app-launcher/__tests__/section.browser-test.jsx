@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import chai from 'chai';
 import assign from 'lodash.assign';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 
 import IconSettings from '../../icon-settings';
 import AppLauncherTile from '../../app-launcher/tile';
@@ -34,7 +34,7 @@ describe('SLDS APP LAUNCHER SECTION *******************************************'
 			children
 		);
 
-	function mountSection (props, children = defaultChildren) {
+	function mountSection(props, children = defaultChildren) {
 		handles.section = mount(
 			<IconSettings iconPath="/assets/icons">
 				{createSection(props, children)}
@@ -61,7 +61,7 @@ describe('SLDS APP LAUNCHER SECTION *******************************************'
 		});
 
 		it('modal section has "slds-is-open" class when open', () => {
-			expect(handles.section.find('.slds-section').node.className).to.include(
+			expect(handles.section.find('.slds-section')).to.have.className(
 				'slds-is-open'
 			);
 		});
@@ -72,7 +72,7 @@ describe('SLDS APP LAUNCHER SECTION *******************************************'
 
 		it('ul has proper classes', () => {
 			should.exist(
-				handles.section.find('ul.slds-grid.slds-grid--pull-padded.slds-wrap')
+				handles.section.find('ul.slds-grid.slds-grid_pull-padded.slds-wrap')
 			);
 		});
 
@@ -81,9 +81,11 @@ describe('SLDS APP LAUNCHER SECTION *******************************************'
 		});
 
 		it('renders li with proper classes', () => {
-			expect(handles.section.find('li').at(0).node.className).to.include(
-				'slds-col--padded slds-grow-none slds-size--1-of-1 slds-medium-size--1-of-3'
-			);
+			const li = handles.section.find('li').at(0);
+			expect(li).to.have.className('slds-col_padded');
+			expect(li).to.have.className('slds-grow-none');
+			expect(li).to.have.className('slds-size_1-of-1');
+			expect(li).to.have.className('slds-medium-size_1-of-3');
 		});
 
 		it('renders custom section title', () => {
@@ -97,7 +99,7 @@ describe('SLDS APP LAUNCHER SECTION *******************************************'
 		});
 
 		it('toggling section fires callback', () => {
-			Simulate.click(handles.section.find('.slds-button').node);
+			handles.section.find('.slds-button').simulate('click');
 			expect(onToggleClick.calledOnce).to.be.true; // eslint-disable-line no-unused-expressions
 		});
 	});
@@ -110,7 +112,7 @@ describe('SLDS APP LAUNCHER SECTION *******************************************'
 		it('does not render toggle if toggleable is false', () => {
 			should.not.exist(
 				handles.section.find(
-					'.slds-button .slds-button--icon .slds-m-right--small'
+					'.slds-button .slds-button_icon .slds-m-right_small'
 				)
 			);
 		});
@@ -140,7 +142,7 @@ describe('SLDS APP LAUNCHER SECTION *******************************************'
 		it('renders li with proper classes for small tiles', () => {
 			should.exist(
 				handles.section.find(
-					'.slds-col--padded .slds-grow-none .slds-size--xx-small'
+					'.slds-col_padded .slds-grow-none .slds-size_xx-small'
 				)
 			);
 		});

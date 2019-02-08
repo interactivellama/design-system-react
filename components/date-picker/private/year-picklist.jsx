@@ -2,14 +2,14 @@
 /* Licensed under BSD 3-Clause - see LICENSE.txt or git.io/sfdc-license */
 
 import React from 'react';
-import createReactClass from 'create-react-class';
+
 import PropTypes from 'prop-types';
 import Combobox from '../../combobox/combobox';
 
-const DatepickerYearSelector = createReactClass({
-	displayName: 'SLDSDatepickerYearSelector',
+class DatepickerYearSelector extends React.Component {
+	static displayName = 'SLDSDatepickerYearSelector';
 
-	propTypes: {
+	static propTypes = {
 		/**
 		 * HTML id for component
 		 */
@@ -34,26 +34,26 @@ const DatepickerYearSelector = createReactClass({
 		 * Callback that passes in the DOM reference of the `<button>` DOM node within this component. Primary use is to allow `focus` to be called. You should still test if the node exists, since rendering is asynchronous. `buttonRef={(component) => { if(component) console.log(component); }}`
 		 */
 		yearPicklistButtonRef: PropTypes.func,
-	},
+	};
 
-	getOptions () {
+	getOptions = () => {
 		const now = new Date();
 		const fromYear = now.getFullYear() + this.props.relativeYearFrom;
 		const toYear = now.getFullYear() + this.props.relativeYearTo;
 		const opts = [];
 
 		for (let year = fromYear; year < toYear; year += 1) {
-			opts.push({ label: `${year}`, value: year, id: opts.length });
+			opts.push({ label: `${year}`, value: year, id: String(opts.length) });
 		}
 		return opts;
-	},
+	};
 
-	getSelectedValueOption () {
+	getSelectedValueOption = () => {
 		const selectedYear = this.props.initialDateForCalendarRender.getFullYear();
 		return this.getOptions().filter((option) => option.value === selectedYear);
-	},
+	};
 
-	handleSelect (event, { selection: selectedValues }) {
+	handleSelect = (event, { selection: selectedValues }) => {
 		const selectedValue = selectedValues[0]; // safe since we are working with a single selection
 
 		if (selectedValue) {
@@ -65,14 +65,15 @@ const DatepickerYearSelector = createReactClass({
 				)
 			);
 		}
-	},
+	};
 
-	render () {
+	render() {
 		const selection = this.getSelectedValueOption();
 		return (
 			<div className="slds-form-element slds-align-content-center">
 				<Combobox
 					className="slds-shrink-none"
+					classNameMenu="slds-datepicker"
 					events={{
 						onSelect: this.handleSelect,
 					}}
@@ -90,7 +91,7 @@ const DatepickerYearSelector = createReactClass({
 				/>
 			</div>
 		);
-	},
-});
+	}
+}
 
 export default DatepickerYearSelector;

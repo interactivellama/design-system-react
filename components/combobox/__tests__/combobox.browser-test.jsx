@@ -1,4 +1,4 @@
-// Import your external dependencies
+/* eslint-disable max-lines */
 import React from 'react';
 import PropTypes from 'prop-types';
 import chai, { expect } from 'chai';
@@ -18,6 +18,7 @@ import {
 
 // Import your internal dependencies (for example):
 import Combobox from '../../../components/combobox';
+import Tooltip from '../../../components/tooltip';
 import Icon from '../../../components/icon';
 import filter from '../../../components/combobox/filter';
 import KEYS, { keyObjects } from '../../../utilities/key-code';
@@ -55,6 +56,7 @@ const accounts = [
 		label: 'Tyrell Corp',
 		subTitle: 'Account • San Francisco, CA',
 		type: 'account',
+		disabled: true,
 	},
 	{
 		id: '5',
@@ -110,7 +112,7 @@ const propTypes = {
  * you will create in the React Storybook for manual testing.
  */
 class DemoComponent extends React.Component {
-	constructor (props) {
+	constructor(props) {
 		super(props);
 
 		this.state = {
@@ -119,13 +121,13 @@ class DemoComponent extends React.Component {
 		};
 	}
 
-	componentWillUpdate (nextProps, nextState) {
+	componentWillUpdate(nextProps, nextState) {
 		if (this.props.componentWillUpdate) {
 			this.props.componentWillUpdate(nextState);
 		}
 	}
 
-	render () {
+	render() {
 		return (
 			<IconSettings iconPath="/assets/icons">
 				<Combobox
@@ -134,7 +136,6 @@ class DemoComponent extends React.Component {
 							this.setState({ inputValue: value });
 						},
 						onRequestRemoveSelectedOption: (event, data) => {
-							console.log(data);
 							this.setState({
 								inputValue: '',
 								selection: data.selection,
@@ -147,9 +148,12 @@ class DemoComponent extends React.Component {
 									...this.state.selection,
 									{
 										label: value,
+										id: 'another-account',
 										icon: (
 											<Icon
-												assistiveText="Account"
+												assistiveText={{
+													label: 'Account',
+												}}
 												category="standard"
 												name="account"
 											/>
@@ -190,7 +194,7 @@ const getNodes = ({ wrapper }) => ({
 	combobox: wrapper.find('.slds-combobox'),
 	input: wrapper.find('.slds-combobox input'),
 	menuListbox: wrapper.find('.slds-combobox .slds-listbox.slds-dropdown'),
-	removeSingleItem: wrapper.find('.slds-combobox .slds-input__icon'),
+	removeSingleItem: wrapper.find('.slds-combobox button.slds-input__icon'),
 	selectedListbox: wrapper.find(
 		`#${defaultProps.id}-selected-listbox .slds-listbox`
 	),
@@ -205,7 +209,7 @@ const getNodes = ({ wrapper }) => ({
  * String provided as first parameter names the `describe` section. Limit to nouns
  * as much as possible/appropriate.`
  */
-describe('SLDSCombobox', function () {
+describe('SLDSCombobox', function() {
 	let mountNode;
 	let wrapper;
 
@@ -221,24 +225,18 @@ describe('SLDSCombobox', function () {
 			destroyMountNode({ wrapper, mountNode });
 		});
 
-		it('has aria-haspopup, aria-expanded is false when closed, aria-expanded is true when open', function () {
+		it('has aria-haspopup, aria-expanded is false when closed, aria-expanded is true when open', function() {
 			wrapper = mount(<DemoComponent multiple />, { attachTo: mountNode });
 			const nodes = getNodes({ wrapper });
-			expect(nodes.combobox.node.getAttribute('aria-haspopup')).to.equal(
-				'listbox'
-			);
+			expect(nodes.combobox).attr('aria-haspopup', 'listbox');
 			// closed
-			expect(nodes.combobox.node.getAttribute('aria-expanded')).to.equal(
-				'false'
-			);
+			expect(nodes.combobox).attr('aria-expanded', 'false');
 			// open
 			nodes.input.simulate('click', {});
-			expect(nodes.combobox.node.getAttribute('aria-expanded')).to.equal(
-				'true'
-			);
+			expect(nodes.combobox).attr('aria-expanded', 'true');
 		});
 
-		it('menu filters to second item, menu listbox menu item 2 aria-selected is true, input activedescendent has item 2 id, after pressing down arrow, enter selects item 2', function () {
+		it('menu filters to second item, menu listbox menu item 2 aria-selected is true, input activedescendent has item 2 id, after pressing down arrow, enter selects item 2', function() {
 			wrapper = mount(<DemoComponent multiple isOpen />, {
 				attachTo: mountNode,
 			});
@@ -247,23 +245,22 @@ describe('SLDSCombobox', function () {
 			nodes.input.simulate('change', { target: { value: accounts[1].label } });
 			nodes.input.simulate('keyDown', keyObjects.DOWN);
 			expect(
-				nodes.menuListbox.node.firstChild.firstChild.getAttribute(
-					'aria-selected'
-				)
-			).to.equal('true');
-			expect(nodes.input.node.getAttribute('aria-activedescendant')).to.equal(
+				nodes.menuListbox.find('#combobox-unique-id-listbox-option-2')
+			).to.have.attr('aria-selected', 'true');
+			expect(nodes.input).attr(
+				'aria-activedescendant',
 				`${defaultProps.id}-listbox-option-2`
 			);
 			// select
 			nodes.input.simulate('keyDown', keyObjects.ENTER);
 			nodes = getNodes({ wrapper });
-			expect(nodes.input.node.getAttribute('value')).to.equal('');
+			expect(nodes.input).attr('value', '');
 			expect(nodes.selectedListbox.find('.slds-pill__label').text()).to.equal(
 				accounts[1].label
 			);
 		});
 
-		it('Selected Listbox: remove initial first pill, remove third initial item, cycles focus (first to last), removes last and initial fifth pill, cycles focus (last to first), remove inital second and fourth pill', function (done) {
+		it('Selected Listbox: remove initial first pill, remove third initial item, cycles focus (first to last), removes last and initial fifth pill, cycles focus (last to first), remove inital second and fourth pill', function(done) {
 			const getSelectedListboxPills = ({ nodes, index }) =>
 				nodes.selectedListbox
 					.children()
@@ -325,43 +322,107 @@ describe('SLDSCombobox', function () {
 				keyObjects.DELETE
 			);
 			expect(getFocusedPillLabel()).to.equal(accountsWithIcon[1].label);
-			getSelectedListboxPills({ nodes, index: 0 }).simulate(
-				'keyDown',
-				keyObjects.RIGHT
-			);
+			getSelectedListboxPills({
+				nodes: getNodes({ wrapper }),
+				index: 0,
+			}).simulate('keyDown', keyObjects.RIGHT);
 			expect(getFocusedPillLabel()).to.equal(accountsWithIcon[2].label);
-			getSelectedListboxPills({ nodes, index: 1 }).simulate(
-				'keyDown',
-				keyObjects.DELETE
-			);
+			getSelectedListboxPills({
+				nodes: getNodes({ wrapper }),
+				index: 1,
+			}).simulate('keyDown', keyObjects.DELETE);
 			expect(getFocusedPillLabel()).to.equal(accountsWithIcon[3].label);
-			getSelectedListboxPills({ nodes, index: 1 }).simulate(
-				'keyDown',
-				keyObjects.LEFT
-			);
-			getSelectedListboxPills({ nodes, index: 0 }).simulate(
-				'keyDown',
-				keyObjects.LEFT
-			);
+			getSelectedListboxPills({
+				nodes: getNodes({ wrapper }),
+				index: 1,
+			}).simulate('keyDown', keyObjects.LEFT);
+			getSelectedListboxPills({
+				nodes: getNodes({ wrapper }),
+				index: 0,
+			}).simulate('keyDown', keyObjects.LEFT);
 			expect(getFocusedPillLabel()).to.equal(accountsWithIcon[4].label);
-			getSelectedListboxPills({ nodes, index: 2 }).simulate(
-				'keyDown',
-				keyObjects.DELETE
-			);
+			getSelectedListboxPills({
+				nodes: getNodes({ wrapper }),
+				index: 2,
+			}).simulate('keyDown', keyObjects.DELETE);
 			expect(getFocusedPillLabel()).to.equal(accountsWithIcon[3].label);
-			getSelectedListboxPills({ nodes, index: 1 }).simulate(
-				'keyDown',
-				keyObjects.RIGHT
-			);
+			getSelectedListboxPills({
+				nodes: getNodes({ wrapper }),
+				index: 1,
+			}).simulate('keyDown', keyObjects.RIGHT);
 			expect(getFocusedPillLabel()).to.equal(accountsWithIcon[1].label);
-			getSelectedListboxPills({ nodes, index: 0 }).simulate(
-				'keyDown',
-				keyObjects.DELETE
+			getSelectedListboxPills({
+				nodes: getNodes({ wrapper }),
+				index: 0,
+			}).simulate('keyDown', keyObjects.DELETE);
+			getSelectedListboxPills({
+				nodes: getNodes({ wrapper }),
+				index: 0,
+			}).simulate('keydown', keyObjects.DELETE);
+		});
+
+		it('selects a menu item and scrolls when a letter key is pressed in read-only mode', () => {
+			wrapper = mount(<DemoComponent variant="readonly" />, {
+				attachTo: mountNode,
+			});
+			let nodes = getNodes({ wrapper });
+
+			nodes.input.simulate('keyDown', keyObjects.DOWN);
+			nodes = getNodes({ wrapper });
+			for (let i = 0; i < 3; i++) {
+				nodes.input.simulate('keyDown', letterKeyObjects.A);
+			}
+
+			const menuListItem = nodes.menuListbox.find(
+				'#combobox-unique-id-listbox-option-8'
 			);
-			getSelectedListboxPills({ nodes, index: 0 }).simulate(
-				'keydown',
-				keyObjects.DELETE
+			expect(
+				menuListItem.instance().className.search('slds-has-focus') > -1
+			).to.eql(true);
+
+			const scrollTop = nodes.menuListbox.instance().scrollTop;
+			expect(scrollTop === 98 || scrollTop === 0).to.eql(true); // done because menu and menu item size in phantomjs is weird
+		});
+
+		it('selects menu items and scrolls when the down/up keys are pressed', () => {
+			wrapper = mount(<DemoComponent variant="readonly" />, {
+				attachTo: mountNode,
+			});
+			let nodes = getNodes({ wrapper });
+			let i;
+			let menuListItem;
+			let scrollTop;
+
+			nodes.input.simulate('keyDown', keyObjects.DOWN);
+			nodes = getNodes({ wrapper });
+
+			for (i = 0; i < 8; i++) {
+				nodes.input.simulate('keyDown', keyObjects.DOWN);
+			}
+
+			menuListItem = nodes.menuListbox.find(
+				'#combobox-unique-id-listbox-option-8'
 			);
+			expect(
+				menuListItem.instance().className.search('slds-has-focus') > -1
+			).to.eql(true);
+
+			scrollTop = nodes.menuListbox.instance().scrollTop;
+			expect(scrollTop === 98 || scrollTop === 0).to.eql(true); // done because menu and menu item size in phantomjs is weird
+
+			for (i = 0; i < 8; i++) {
+				nodes.input.simulate('keyDown', keyObjects.UP);
+			}
+
+			menuListItem = nodes.menuListbox.find(
+				'#combobox-unique-id-listbox-option-1'
+			);
+			expect(
+				menuListItem.instance().className.search('slds-has-focus') > -1
+			).to.eql(true);
+
+			scrollTop = nodes.menuListbox.instance().scrollTop;
+			expect(scrollTop === 4 || scrollTop === 0).to.eql(true); // done because menu and menu item size in phantomjs is weird
 		});
 	});
 
@@ -374,7 +435,7 @@ describe('SLDSCombobox', function () {
 			destroyMountNode({ wrapper, mountNode });
 		});
 
-		it('Limit to pre-defined choices', function () {
+		it('Limit to pre-defined choices', function() {
 			wrapper = mount(<DemoComponent multiple predefinedOptionsOnly />, {
 				attachTo: mountNode,
 			});
@@ -383,10 +444,10 @@ describe('SLDSCombobox', function () {
 			nodes.input.simulate('keyDown', letterKeyObjects.A);
 			nodes.input.simulate('keyDown', keyObjects.ENTER);
 			nodes = getNodes({ wrapper });
-			expect(nodes.selectedListbox.node).to.be.an('undefined');
+			expect(nodes.selectedListbox).not.to.be.present;
 		});
 
-		it('Inline Single Selection Remove selection', function () {
+		it('Inline Single Selection Remove selection', function() {
 			wrapper = mount(<DemoComponent variant="inline-listbox" />, {
 				attachTo: mountNode,
 			});
@@ -396,13 +457,13 @@ describe('SLDSCombobox', function () {
 			nodes.input.simulate('focus');
 			nodes.input.simulate('change', { target: { value: accounts[1].label } });
 			nodes.input.simulate('keyDown', keyObjects.ENTER);
-			expect(nodes.input.node.value).to.equal('Salesforce.com, Inc.');
+			expect(nodes.input).to.have.value('Salesforce.com, Inc.');
 			nodes = getNodes({ wrapper });
 
 			// remove selection
 			nodes.removeSingleItem.simulate('click');
 			nodes = getNodes({ wrapper });
-			expect(nodes.input.node.value).to.equal('');
+			expect(nodes.input).to.have.value('');
 		});
 	});
 
@@ -415,7 +476,7 @@ describe('SLDSCombobox', function () {
 			destroyMountNode({ wrapper, mountNode });
 		});
 
-		it('Displays No match found', function () {
+		it('Displays No match found', function() {
 			wrapper = mount(<DemoComponent isOpen />, { attachTo: mountNode });
 			let nodes = getNodes({ wrapper });
 			nodes.input.simulate('focus');
@@ -440,13 +501,48 @@ describe('SLDSCombobox', function () {
 			destroyMountNode({ wrapper, mountNode });
 		});
 
-		it('onOpen callback is called', function () {
+		it('onOpen callback is called', function() {
 			wrapper = mount(<DemoComponent onOpen={onOpenCallback} />, {
 				attachTo: mountNode,
 			});
 			const nodes = getNodes({ wrapper });
 			nodes.input.simulate('click', {});
 			expect(onOpenCallback.callCount).to.equal(1);
+		});
+	});
+
+	describe('Combobox with items disabled', () => {
+		beforeEach(() => {
+			mountNode = createMountNode({ context: this });
+		});
+
+		afterEach(() => {
+			destroyMountNode({ wrapper, mountNode });
+		});
+		it('Tooltip component shows when focused on menu item.', function() {
+			wrapper = mount(
+				<DemoComponent multiple isOpen tooltipMenuItemDisabled={<Tooltip />} />,
+				{
+					attachTo: mountNode,
+				}
+			);
+			const nodes = getNodes({ wrapper });
+			nodes.input.simulate('focus');
+			nodes.input.simulate('change', { target: { value: accounts[3].label } });
+			nodes.input.simulate('keyDown', keyObjects.DOWN);
+
+			const nodeInFocus = nodes.menuListbox.find('.slds-tooltip-trigger');
+			const span = nodeInFocus.find('#combobox-unique-id-listbox-option-4');
+
+			// verify span is aria-selected and aria-disabled
+			expect(span).to.have.attr('aria-selected', 'true');
+			expect(span).to.have.attr('aria-disabled', 'true');
+
+			// verify tooltip is rendered
+			expect(
+				nodes.menuListbox.find('#combobox-unique-id-listbox-option-help-4')
+					.length
+			).to.equal(1);
 		});
 	});
 });

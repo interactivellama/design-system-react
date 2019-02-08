@@ -16,6 +16,8 @@ import checkProps from './check-props';
 // ## Constants
 import { SPINNER } from '../../utilities/constants';
 
+import componentDoc from './docs.json';
+
 // ### Prop Types
 const propTypes = {
 	/**
@@ -58,15 +60,15 @@ const defaultProps = {
  * Spinners are CSS loading indicators that should be shown when retrieving data or performing slow computations. In some cases, the first time a parent component loads, a stencil is preferred to indicate network activity.
  */
 const Spinner = (props) => {
-	checkProps(SPINNER, props);
+	checkProps(SPINNER, props, componentDoc);
 	const { containerClassName, id, isInput, size, variant } = props;
 	const assistiveText =
 		typeof props.assistiveText === 'string'
 			? props.assistiveText
 			: {
-				...defaultProps.assistiveText,
-				...props.assistiveText,
-			}.label;
+					...defaultProps.assistiveText,
+					...props.assistiveText,
+				}.label;
 
 	const spinnerClassName = classNames('slds-spinner', {
 		'slds-input__spinner': isInput,

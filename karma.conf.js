@@ -5,7 +5,6 @@ const karmaWebpack = require('karma-webpack');
 const karmaMocha = require('karma-mocha');
 const karmaChaiSinon = require('karma-chai-sinon');
 const karmaSourcemapLoader = require('karma-sourcemap-loader');
-const karmaPhantomjsLauncher = require('karma-phantomjs-launcher');
 const karmaChromeLauncher = require('karma-chrome-launcher');
 const karmaSpecReporter = require('karma-spec-reporter');
 const karmaCoverage = require('karma-coverage');
@@ -19,10 +18,18 @@ webpackConfig.externals = {
 };
 
 // Karma configuration
-const configExport = function (config) {
+const configExport = function(config) {
 	config.set({
 		// base path that will be used to resolve all patterns (eg. files, exclude)
 		basePath: '',
+
+		// needed for TravisCI
+		customLaunchers: {
+			ChromeHeadlessNoSandbox: {
+				base: 'ChromeHeadless',
+				flags: ['--no-sandbox'],
+			},
+		},
 
 		// frameworks to use
 		// available frameworks: https://npmjs.org/browse/keyword/karma-adapter
@@ -30,12 +37,20 @@ const configExport = function (config) {
 
 		// list of files / patterns to load in the browser
 		files: [
-			require.resolve('@babel/polyfill/dist/polyfill.js'),
-			'tests/fixtures/phantomjs-shims.js',
-			'./node_modules/phantomjs-polyfill-find-index/findIndex-polyfill.js',
-			'./node_modules/phantomjs-polyfill-includes/includes-polyfill.js',
 			'tests/browser-tests.js',
+			{
+				pattern:
+					'./node_modules/@salesforce-ux/design-system/assets/icons/**/*.svg',
+				watched: false,
+				included: false,
+				served: true,
+				nocache: false,
+			},
 		],
+		proxies: {
+			'/assets/':
+				'http://localhost:9876/base/node_modules/@salesforce-ux/design-system/assets/',
+		},
 
 		// list of files to exclude
 		exclude: [],
@@ -66,11 +81,11 @@ const configExport = function (config) {
 		logLevel: config.LOG_INFO,
 
 		// enable / disable watching file and executing tests whenever any file changes
-		autoWatch: true,
+		autoWatch: false,
 
 		// start these browsers
 		// available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-		browsers: ['PhantomJS'],
+		browsers: ['ChromeHeadless', 'ChromeHeadlessNoSandbox'],
 
 		// Continuous Integration mode
 		// if true, Karma captures browsers, runs the tests and exits
@@ -83,7 +98,6 @@ const configExport = function (config) {
 			karmaMocha,
 			karmaChaiSinon,
 			karmaSourcemapLoader,
-			karmaPhantomjsLauncher,
 			karmaChromeLauncher,
 			karmaSpecReporter,
 			karmaCoverage,

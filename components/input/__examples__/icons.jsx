@@ -1,24 +1,26 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
+
 import IconSettings from '~/components/icon-settings';
 import Input from '~/components/input'; // `~` is replaced with design-system-react at runtime
 import InputIcon from '~/components/icon/input-icon'; // `~` is replaced with design-system-react at runtime
 
-const Example = createReactClass({
-	displayName: 'InputExample',
+class Example extends React.Component {
+	static displayName = 'InputExample';
 
-	render () {
+	render() {
 		return (
 			<IconSettings iconPath="/assets/icons">
-				<div className="slds-grid slds-grid--pull-padded slds-grid--vertical-align-center">
-					<h1 className="slds-text-title_caps slds-p-vertical--medium">
+				<div className="slds-grid slds-grid_pull-padded slds-grid_vertical-align-center">
+					<h1 className="slds-text-title_caps slds-p-vertical_medium">
 						Input with Icons
 					</h1>
-					<div className="slds-col--padded">
+					<div className="slds-col_padded">
 						<Input
 							iconLeft={
 								<InputIcon
-									assistiveText="Search"
+									assistiveText={{
+										icon: 'Search',
+									}}
 									name="search"
 									category="utility"
 								/>
@@ -28,11 +30,13 @@ const Example = createReactClass({
 							placeholder="Static Icon on the left"
 						/>
 					</div>
-					<div className="slds-col--padded">
+					<div className="slds-col_padded">
 						<Input
 							iconLeft={
 								<InputIcon
-									assistiveText="Search"
+									assistiveText={{
+										icon: 'Search',
+									}}
 									name="search"
 									category="utility"
 									onClick={() => {
@@ -42,7 +46,9 @@ const Example = createReactClass({
 							}
 							iconRight={
 								<InputIcon
-									assistiveText="Clear"
+									assistiveText={{
+										icon: 'Clear',
+									}}
 									name="clear"
 									category="utility"
 									onClick={() => {
@@ -55,11 +61,13 @@ const Example = createReactClass({
 							placeholder="Clickable Icons (Left and Right)"
 						/>
 					</div>
-					<div className="slds-col--padded">
+					<div className="slds-col_padded">
 						<Input
 							iconRight={
 								<InputIcon
-									assistiveText="Clear"
+									assistiveText={{
+										icon: 'Clear',
+									}}
 									name="clear"
 									category="utility"
 									onClick={() => {
@@ -72,12 +80,14 @@ const Example = createReactClass({
 							placeholder="Clickable Icon on the right"
 						/>
 					</div>
-					<div className="slds-col--padded">
+					<div className="slds-col_padded">
 						<Input
 							assistiveText={{ spinner: 'Field data is loading' }}
 							iconRight={
 								<InputIcon
-									assistiveText="Clear"
+									assistiveText={{
+										icon: 'Clear',
+									}}
 									name="clear"
 									category="utility"
 									onClick={() => {
@@ -94,7 +104,7 @@ const Example = createReactClass({
 				</div>
 			</IconSettings>
 		);
-	},
-});
+	}
+}
 
 export default Example; // export is replaced with `ReactDOM.render(<Example />, mountNode);` at runtime

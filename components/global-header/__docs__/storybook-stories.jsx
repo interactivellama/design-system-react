@@ -1,9 +1,9 @@
 import React from 'react';
-import { storiesOf, action } from '@storybook/react';
+import { storiesOf } from '@storybook/react';
+import { action } from '@storybook/addon-actions';
 import IconSettings from '../../icon-settings';
 
-import logo from '../__examples__/logo.svg';
-
+import Avatar from '../../avatar';
 import GlobalHeader from '../../global-header';
 import GlobalHeaderButton from '../../global-header/button';
 import GlobalHeaderDropdown from '../../global-header/dropdown';
@@ -12,7 +12,9 @@ import GlobalHeaderSearch from '../../global-header/search';
 
 import { GLOBAL_HEADER } from '../../../utilities/constants';
 
-import globalNavigationBar from '../../global-navigation-bar/__docs__/storybook-stories';
+import Default from '../__examples__/default';
+
+// import globalNavigationBar from '../../global-navigation-bar/__docs__/storybook-stories';
 
 /* eslint-disable react/prop-types */
 /* eslint-disable no-script-url */
@@ -20,13 +22,13 @@ import globalNavigationBar from '../../global-navigation-bar/__docs__/storybook-
 
 const HeaderProfileCustomContent = (props) => (
 	<div id="custom-dropdown-menu-content">
-		<div className="slds-m-around--medium">
-			<div className="slds-tile slds-tile--board slds-m-horizontal--small">
-				<p className="tile__title slds-text-heading--small">Art Vandelay</p>
+		<div className="slds-m-around_medium">
+			<div className="slds-tile slds-tile_board slds-m-horizontal_small">
+				<p className="tile__title slds-text-heading_small">Art Vandelay</p>
 				<div className="slds-tile__detail">
 					<p className="slds-truncate">
 						<a
-							className="slds-m-right--medium"
+							className="slds-m-right_medium"
 							href="javascript:void(0)"
 							onClick={props.onClick}
 						>
@@ -47,7 +49,9 @@ const GlobalHeaderDemo = (props) => (
 	<GlobalHeader
 		onSkipToContent={action('Skip to Main Content')}
 		onSkipToNav={action('Skip to Navigation')}
-		navigation={globalNavigationBar(props)}
+		// Add back for visual review with navigation present.
+		// The presence of React Modal in App Launcher in Global Navigation prevents Jest (node) testing.
+		// navigation={globalNavigationBar(props)}
 		assistiveText={{
 			skipToContent: 'Skip to Main Content',
 			skipToNavAssistiveText: 'Skip to Navigation',
@@ -59,7 +63,7 @@ const GlobalHeaderDemo = (props) => (
 			options={[{ label: 'Email' }, { label: 'Mobile' }]}
 		/>
 		<GlobalHeaderButton
-			className="slds-m-right--small"
+			className="slds-m-right_small"
 			iconVariant={null}
 			label="Feedback"
 			onClick={action('Feedback Clicked')}
@@ -71,6 +75,7 @@ const GlobalHeaderDemo = (props) => (
 			globalAction
 			iconCategory="utility"
 			iconName="add"
+			id="global-header-dropdown-example"
 			onSelect={action('Action Selected')}
 			options={[
 				{
@@ -89,25 +94,31 @@ const GlobalHeaderDemo = (props) => (
 		/>
 		<GlobalHeaderButton
 			assistiveText={{ icon: 'Help and Training' }}
+			iconCategory="utility"
 			iconName="question"
 			onClick={action('Help Clicked')}
 		/>
 		<GlobalHeaderDropdown
 			openOn={props.openOn}
 			assistiveText={{ icon: 'Setup' }}
+			iconCategory="utility"
 			iconName="setup"
+			id="global-header-dropdown-example"
 			onSelect={action('Action Selected')}
 			options={[{ label: 'Global Setup' }, { label: 'Permissions' }]}
 		/>
 		<GlobalHeaderButton
 			assistiveText={{ icon: 'Notifications' }}
-			iconName="Notification"
+			iconCategory="utility"
+			iconName="notification"
 			onClick={action('Notifications Clicked')}
 		/>
 		<GlobalHeaderProfile
+			id="global-header-dropdown-profile-example"
 			openOn={props.openOn}
 			onClick={action('Profile Clicked')}
 			onSelect={action('Profile Selected')}
+			avatar={props.avatar}
 		>
 			<HeaderProfileCustomContent />
 		</GlobalHeaderProfile>
@@ -116,24 +127,31 @@ const GlobalHeaderDemo = (props) => (
 
 storiesOf(GLOBAL_HEADER, module)
 	.addDecorator((getStory) => (
-		<div className="slds-p-around--medium">
+		<div className="slds-p-around_medium">
 			<IconSettings iconPath="/assets/icons">{getStory()}</IconSettings>
 		</div>
 	))
 	.add('Search + Navigation', () => <GlobalHeaderDemo />)
 	.add('Open on Hybrid', () => <GlobalHeaderDemo openOn="hybrid" />)
 	.add('Fewer Elements', () => (
-		<GlobalHeader logoSrc={logo}>
+		<GlobalHeader logoSrc="/assets/images/global-header/logo.svg">
 			<GlobalHeaderDropdown
 				assistiveText={{ icon: 'Setup' }}
+				iconCategory="utility"
 				iconName="setup"
+				id="global-header-dropdown-example"
 				onSelect={action('Action Selected')}
 				options={[{ label: 'Global Setup' }, { label: 'Permissions' }]}
 			/>
 			<GlobalHeaderProfile
+				id="global-header-dropdown-profile-example"
 				onClick={action('Profile Clicked')}
 				onSelect={action('Profile Selected')}
 				options={[{ label: 'Profile Menu' }]}
 			/>
 		</GlobalHeader>
-	));
+	))
+	.add('With custom <Avatar/>', () => (
+		<GlobalHeaderDemo avatar={<Avatar variant="user" label="Art Vandelay" />} />
+	))
+	.add('Doc site Default', () => <Default />);

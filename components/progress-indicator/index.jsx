@@ -100,6 +100,17 @@ const propTypes = {
 	 * Determines component style.
 	 */
 	variant: PropTypes.oneOf(['base', 'modal']),
+	/**
+	 * Please select one of the following:
+	 * * `absolute` - (default if `variant` is `modal`) The dialog will use `position: absolute` and style attributes to position itself. This allows inverted placement or flipping of the dialog.
+	 * * `overflowBoundaryElement` - (default if `variant` is `base`) The dialog will overflow scrolling parents. Use on elements that are aligned to the left or right of their target and don't care about the target being within a scrolling parent. Typically this is a popover or tooltip. Dropdown menus can usually open up and down if no room exists. In order to achieve this a portal element will be created and attached to `body`. This element will render into that detached render tree.
+	 * * `relative` - No styling or portals will be used. Menus will be positioned relative to their triggers. This is a great choice for HTML snapshot testing.
+	 */
+	tooltipPosition: PropTypes.oneOf([
+		'absolute',
+		'overflowBoundaryElement',
+		'relative',
+	]),
 };
 
 const defaultSteps = [
@@ -130,7 +141,7 @@ const defaultProps = {
 /**
  * Check if `steps` prop is valid
  */
-function checkSteps (steps) {
+function checkSteps(steps) {
 	const isStepsDefined = steps !== undefined;
 	const isLabelDefined = (step) => step.label !== undefined;
 	const stepLabelsDefined = Array.isArray(steps) && steps.every(isLabelDefined);
@@ -142,7 +153,7 @@ function checkSteps (steps) {
  * Check if an item is from an array of items when 'items' is an array;
  * Check if an item is equal to the other item after being stringified when 'items' is a JSON object
  */
-function findStep (item, items) {
+function findStep(item, items) {
 	if (Array.isArray(items)) {
 		return !!find(items, item);
 	}
@@ -153,27 +164,27 @@ function findStep (item, items) {
  * Progress Indicator is a component that communicates to the user the progress of a particular process.
  */
 class ProgressIndicator extends React.Component {
-	componentWillMount () {
+	componentWillMount() {
 		this.generatedId = shortid.generate();
 	}
 
-	componentWillUnmount () {
+	componentWillUnmount() {
 		this.isUnmounting = true;
 	}
 
 	/**
 	 * Get the progress indicator's HTML id. Generate a new one if no ID present.
 	 */
-	getId () {
+	getId() {
 		return this.props.id || this.generatedId;
 	}
 
-	getSteps () {
+	getSteps() {
 		// check if passed steps are valid
 		return checkSteps(this.props.steps) ? this.props.steps : defaultSteps;
 	}
 
-	render () {
+	render() {
 		// Merge objects of strings with their default object
 		const assistiveText = {
 			...defaultProps.assistiveText,
@@ -200,6 +211,11 @@ class ProgressIndicator extends React.Component {
 				currentStep = i;
 			}
 		}
+
+		// Set default tooltipPosition
+		const tooltipPosition =
+			this.props.tooltipPosition ||
+			(this.props.variant === 'modal' ? 'absolute' : 'overflowBoundaryElement');
 
 		/** 2. return DOM */
 		return (
@@ -228,6 +244,7 @@ class ProgressIndicator extends React.Component {
 						onFocus={this.props.onStepFocus}
 						step={step}
 						tooltipIsOpen={findStep(step, this.props.tooltipIsOpenSteps)}
+						tooltipPosition={tooltipPosition}
 					/>
 				))}
 			</Progress>
