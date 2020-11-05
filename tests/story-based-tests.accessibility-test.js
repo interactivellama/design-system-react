@@ -78,9 +78,9 @@ describe('aXe storyshots', function axeSnapshotFunction() {
 			axeConfig,
 			puppeteerLaunchOptions: {
 				// use the following for debugging
-				// headless: false,
-				// slowMo: 200,
-				// devtools: true,
+				headless: false,
+				slowMo: 200,
+				devtools: true,
 			},
 		}),
 	});

@@ -537,27 +537,29 @@ class DataTable extends React.Component {
 											? `${this.getId()}-${DATA_TABLE_ROW}-${item.id}`
 											: shortid.generate();
 									return (
-										<DataTableRow
-											assistiveText={assistiveText}
-											canSelectRows={canSelectRows}
-											className={item.classNameRow}
-											columns={columns}
-											fixedLayout={this.props.fixedLayout}
-											id={rowId}
-											index={index}
-											item={item}
-											key={rowId}
-											onToggle={this.handleRowToggle}
-											selection={this.props.selection}
-											rowActions={RowActions}
-											tableId={this.getId()}
-										/>
-									);
-							  })
-							: // Someday this should be an element to render when the table is empty
-							  null}
-					</tbody>
-				</table>
+                    this.props.headerRow && item.type === 'header-row'
+                    ? this.props.headerRow({ assistiveText, classNameRow: item.classNameRow, columns, key: rowId, id: rowId, tableId: this.getId(), item }) 
+                    : <DataTableRow
+                      assistiveText={assistiveText}
+                      canSelectRows={canSelectRows}
+                      className={item.classNameRow}
+                      columns={columns}
+                      fixedLayout={this.props.fixedLayout}
+                      id={rowId}
+                      index={index}
+                      item={item}
+                      key={rowId}
+                      onToggle={this.handleRowToggle}
+                      selection={this.props.selection}
+                      rowActions={RowActions}
+                      tableId={this.getId()}
+                    />
+                );
+						  })
+						: // Someday this should be an element to render when the table is empty
+						  null}
+				</tbody>
+			</table>
 				{this.props.fixedHeader && this.props.hasMore && (
 					<div className="slds-is-relative slds-p-around_large">
 						<Spinner

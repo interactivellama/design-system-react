@@ -68,7 +68,7 @@ const accountsWithIcon = accounts.map((elem) => ({
 const CustomMenuItem = (props) => (
 	<span>
 		<span className="slds-listbox__option-text slds-listbox__option-text_entity">
-			{props.option.label}
+			{props.option.icon}
 		</span>
 		<span className="slds-listbox__option-meta slds-listbox__option-meta_entity">
 			{props.option.subTitle || '\u00A0'}

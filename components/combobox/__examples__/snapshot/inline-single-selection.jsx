@@ -55,11 +55,15 @@ const accountsWithIcon = accounts.map((elem) => ({
 	...elem,
 	...{
 		icon: (
-			<Icon
-				assistiveText={{ label: 'Account' }}
-				category="standard"
-				name={elem.type}
-			/>
+      <span>
+        1 
+        <Icon
+          assistiveText={{ label: 'Account' }}
+          category="standard"
+          name={elem.type}
+          containerClassName="slds-combobox__input-entity-icon"
+        />
+      </span>
 		),
 	},
 }));

@@ -33,7 +33,8 @@ const DataTableCell = (props) => {
 		<td
 			className={props.className}
 			role={props.fixedLayout ? 'gridcell' : null}
-			style={props.width ? { width: props.width } : null}
+      style={props.width ? { width: props.width } : null}
+      headers={props.headerId}
 		>
 			{contents}
 		</td>
