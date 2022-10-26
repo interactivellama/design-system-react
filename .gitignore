@@ -1,8 +1,5 @@
 ### Project files ###
 
-# Only used for release server authentication
-/.npmrc
-
 # React Storybook
 storybook/
 storybook-based-tests/
