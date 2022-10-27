@@ -1,0 +1,39 @@
+# .github/workflows/build-heroku-app.yml // Just a comment
+name: Build server
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: 'master'
+          fetch-depth: '0'
+      - run: git config user.name github-actions
+      - run: git config user.email github-actions@github.com
+      # - name: Setup node
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 14
+      # - run: npm install --verbose
+      # - run: npm run build:npm-package
+      - name: Create Tag
+        id: create_tag
+        uses: jaywcjlove/create-tag-action@v1.3.14
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          package-path: ./package.json
+          # package-path: ./.tmp-npm/package.json
+      # - uses: JS-DevTools/npm-publish@v1
+      #   with:
+      #     token: ${{ secrets.NPM_TOKEN }}
+      #     package: ./.tmp-npm/package.json
+      #     access: restricted
+      #     dry-run: true
+      #     check-version: true
